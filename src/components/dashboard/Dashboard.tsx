@@ -1,0 +1,230 @@
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { Plus } from 'lucide-react';
+import { Stock } from '../../types';
+import { stockService } from '../../services/stockService';
+import { Header } from './Header';
+import { PortfolioSummary } from './PortfolioSummary';
+import { StockCard } from './StockCard';
+import { StockChart } from './StockChart';
+import { SmartAnalyzer } from './SmartAnalyzer';
+import { NewsSection } from './NewsSection';
+import { MarketOverview } from './MarketOverview';
+import { GlassCard } from '../ui/GlassCard';
+import { GlassButton } from '../ui/GlassButton';
+
+// Mock portfolio data
+const MOCK_PORTFOLIO: Stock[] = [
+  {
+    id: '1',
+    user_id: '1',
+    symbol: 'RELIANCE',
+    name: 'Reliance Industries Ltd.',
+    quantity: 50,
+    purchase_price: 2200.50,
+    current_price: 2456.75,
+    created_at: '2024-01-15',
+    updated_at: '2024-01-15'
+  },
+  {
+    id: '2',
+    user_id: '1',
+    symbol: 'TCS',
+    name: 'Tata Consultancy Services Ltd.',
+    quantity: 25,
+    purchase_price: 3500.00,
+    current_price: 3678.90,
+    created_at: '2024-01-20',
+    updated_at: '2024-01-20'
+  },
+  {
+    id: '3',
+    user_id: '1',
+    symbol: 'HDFCBANK',
+    name: 'HDFC Bank Ltd.',
+    quantity: 30,
+    purchase_price: 1450.00,
+    current_price: 1567.45,
+    created_at: '2024-02-01',
+    updated_at: '2024-02-01'
+  },
+  {
+    id: '4',
+    user_id: '1',
+    symbol: 'INFY',
+    name: 'Infosys Ltd.',
+    quantity: 15,
+    purchase_price: 1500.00,
+    current_price: 1456.30,
+    created_at: '2024-02-10',
+    updated_at: '2024-02-10'
+  }
+];
+
+export const Dashboard = () => {
+  const [stocks, setStocks] = useState<Stock[]>(MOCK_PORTFOLIO);
+  const [selectedStock, setSelectedStock] = useState<Stock>(MOCK_PORTFOLIO[0]);
+  const [loading, setLoading] = useState(true);
+
+  const portfolioData = {
+    stocks,
+    totalValue: stocks.reduce((sum, stock) => sum + (stock.current_price * stock.quantity), 0),
+    totalInvested: stocks.reduce((sum, stock) => sum + (stock.purchase_price * stock.quantity), 0),
+    totalGainLoss: stocks.reduce((sum, stock) => sum + ((stock.current_price - stock.purchase_price) * stock.quantity), 0),
+    totalGainLossPercent: (() => {
+      const invested = stocks.reduce((sum, stock) => sum + (stock.purchase_price * stock.quantity), 0);
+      const current = stocks.reduce((sum, stock) => sum + (stock.current_price * stock.quantity), 0);
+      return invested > 0 ? ((current - invested) / invested) * 100 : 0;
+    })()
+  };
+
+  useEffect(() => {
+    // Simulate loading
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-black flex items-center justify-center">
+        <motion.div
+          className="text-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+        >
+          <motion.div
+            className="w-16 h-16 border-4 border-gray-900 dark:border-white border-t-transparent rounded-full mx-auto mb-4"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+          />
+          <p className="text-gray-900 dark:text-white text-lg">Loading your portfolio...</p>
+        </motion.div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-black">
+      <Header portfolioData={portfolioData} />
+      
+      <motion.main
+        id="dashboard-content"
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        {/* Market Overview */}
+        <motion.div variants={itemVariants} className="mb-8">
+          <MarketOverview />
+        </motion.div>
+
+        {/* Portfolio Summary */}
+        <motion.div variants={itemVariants}>
+          <PortfolioSummary stocks={stocks} />
+        </motion.div>
+
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+          {/* Stock Holdings */}
+          <motion.div className="lg:col-span-2" variants={itemVariants}>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Your Holdings</h2>
+              <GlassButton
+                className="flex items-center space-x-2"
+                size="sm"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Add Stock</span>
+              </GlassButton>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {stocks.map((stock, index) => (
+                <motion.div
+                  key={stock.id}
+                  variants={itemVariants}
+                  transition={{ delay: index * 0.1 }}
+                  onClick={() => setSelectedStock(stock)}
+                  className="cursor-pointer"
+                >
+                  <StockCard stock={stock} />
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Quick Stats */}
+          <motion.div variants={itemVariants}>
+            <GlassCard className="p-6 mb-6">
+              <h3 className="text-lg font-semibold text-white mb-4">Quick Actions</h3>
+              <div className="space-y-3">
+                <GlassButton variant="primary" size="sm" className="w-full">
+                  Import from Excel
+                </GlassButton>
+                <GlassButton variant="secondary" size="sm" className="w-full">
+                  Export Portfolio
+                </GlassButton>
+                <GlassButton variant="success" size="sm" className="w-full">
+                  Share Portfolio
+                </GlassButton>
+              </div>
+            </GlassCard>
+
+            <GlassCard className="p-6">
+              <h3 className="text-lg font-semibold text-white mb-4">Market Overview</h3>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-white/60">S&P 500</span>
+                  <span className="text-green-400">+1.2%</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-white/60">NASDAQ</span>
+                  <span className="text-green-400">+0.8%</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-white/60">DOW</span>
+                  <span className="text-red-400">-0.3%</span>
+                </div>
+              </div>
+            </GlassCard>
+          </motion.div>
+        </div>
+
+        {/* Stock Chart */}
+        <motion.div variants={itemVariants} className="mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Price Chart</h2>
+          <StockChart symbol={selectedStock.symbol} name={selectedStock.name} />
+        </motion.div>
+
+        {/* AI Analyzer */}
+        <motion.div variants={itemVariants} className="mb-8">
+          <SmartAnalyzer stocks={stocks} />
+        </motion.div>
+
+        {/* News Section */}
+        <motion.div variants={itemVariants}>
+          <NewsSection />
+        </motion.div>
+      </motion.main>
+    </div>
+  );
+};
