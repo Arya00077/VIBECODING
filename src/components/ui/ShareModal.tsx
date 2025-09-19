@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import QRCode from 'qrcode';
 import { 
   Share2, 
   Mail, 
@@ -29,6 +30,8 @@ interface ShareModalProps {
 export const ShareModal = ({ onClose, portfolioData }: ShareModalProps) => {
   const [shareUrl, setShareUrl] = useState('');
   const [isGeneratingLink, setIsGeneratingLink] = useState(false);
+  const [qrCodeUrl, setQrCodeUrl] = useState('');
+  const [showQR, setShowQR] = useState(false);
 
   const generateShareLink = async () => {
     setIsGeneratingLink(true);
@@ -42,6 +45,38 @@ export const ShareModal = ({ onClose, portfolioData }: ShareModalProps) => {
     setIsGeneratingLink(false);
     
     toast.success('Secure share link generated!');
+  };
+
+  const generateQRCode = async () => {
+    if (!shareUrl) {
+      await generateShareLink();
+      return;
+    }
+    
+    try {
+      const qrDataUrl = await QRCode.toDataURL(shareUrl, {
+        width: 256,
+        margin: 2,
+        color: {
+          dark: '#000000',
+          light: '#FFFFFF'
+        }
+      });
+      setQrCodeUrl(qrDataUrl);
+      setShowQR(true);
+    } catch (error) {
+      toast.error('Failed to generate QR code');
+    }
+  };
+
+  const downloadQR = () => {
+    if (qrCodeUrl) {
+      const link = document.createElement('a');
+      link.download = 'portfolio-qr-code.png';
+      link.href = qrCodeUrl;
+      link.click();
+      toast.success('QR code downloaded!');
+    }
   };
 
   const copyToClipboard = async () => {
@@ -194,7 +229,7 @@ export const ShareModal = ({ onClose, portfolioData }: ShareModalProps) => {
           <div className="space-y-3">
             <GlassButton
               className="w-full flex items-center justify-center space-x-2"
-              onClick={() => toast.info('QR Code feature coming soon!')}
+              onClick={generateQRCode}
             >
               <QrCode className="w-4 h-4" />
               <span>Generate QR Code</span>
@@ -208,6 +243,28 @@ export const ShareModal = ({ onClose, portfolioData }: ShareModalProps) => {
               <span>Share to Instagram Story</span>
             </GlassButton>
           </div>
+
+          {/* QR Code Display */}
+          {showQR && qrCodeUrl && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-6 p-4 bg-white rounded-lg text-center"
+            >
+              <img src={qrCodeUrl} alt="QR Code" className="mx-auto mb-3" />
+              <p className="text-sm text-gray-600 mb-3">
+                Scan to view portfolio
+              </p>
+              <GlassButton
+                size="sm"
+                onClick={downloadQR}
+                className="flex items-center space-x-1 mx-auto"
+              >
+                <Download className="w-4 h-4" />
+                <span>Download QR</span>
+              </GlassButton>
+            </motion.div>
+          )}
 
           <div className="mt-4 text-xs text-gray-500 dark:text-gray-400 text-center">
             Shared portfolios are read-only and don't include personal information

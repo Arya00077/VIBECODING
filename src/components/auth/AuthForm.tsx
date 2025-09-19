@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User, Chrome } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { GlassCard } from '../ui/GlassCard';
 import { GlassButton } from '../ui/GlassButton';
@@ -13,7 +13,7 @@ export const AuthForm = () => {
   const [fullName, setFullName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, signInWithGoogle } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,6 +29,18 @@ export const AuthForm = () => {
       }
     } catch (error: any) {
       toast.error(error.message || 'Authentication failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    try {
+      await signInWithGoogle();
+      toast.success('Welcome!');
+    } catch (error: any) {
+      toast.error(error.message || 'Google sign-in failed');
     } finally {
       setLoading(false);
     }
@@ -112,6 +124,29 @@ export const AuthForm = () => {
               disabled={loading}
             >
               {loading ? 'Processing...' : isLogin ? 'Sign In' : 'Sign Up'}
+            </GlassButton>
+
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300 dark:border-gray-600" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white/50 dark:bg-black/50 text-gray-500 dark:text-gray-400">
+                  Or continue with
+                </span>
+              </div>
+            </div>
+
+            <GlassButton
+              type="button"
+              variant="secondary"
+              size="lg"
+              className="w-full flex items-center justify-center space-x-2"
+              onClick={handleGoogleSignIn}
+              disabled={loading}
+            >
+              <Chrome className="w-5 h-5" />
+              <span>Continue with Google</span>
             </GlassButton>
           </form>
 

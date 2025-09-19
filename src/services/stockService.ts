@@ -28,6 +28,18 @@ const MOCK_INDICES: MarketIndex[] = [
   { name: 'S&P 500', symbol: 'SPX', value: 4567.89, change: 23.45, changePercent: 0.52, country: 'US' },
   { name: 'NASDAQ', symbol: 'IXIC', value: 14567.89, change: 67.89, changePercent: 0.47, country: 'US' },
   { name: 'DOW JONES', symbol: 'DJI', value: 34567.89, change: -123.45, changePercent: -0.36, country: 'US' },
+  // Global Indices
+  { name: 'FTSE 100', symbol: 'UKX', value: 7654.32, change: 45.67, changePercent: 0.60, country: 'UK' },
+  { name: 'DAX', symbol: 'DAX', value: 15432.10, change: -89.45, changePercent: -0.58, country: 'DE' },
+  { name: 'NIKKEI 225', symbol: 'NKY', value: 32145.67, change: 234.56, changePercent: 0.74, country: 'JP' },
+  { name: 'HANG SENG', symbol: 'HSI', value: 18765.43, change: -123.45, changePercent: -0.65, country: 'HK' },
+  { name: 'CAC 40', symbol: 'CAC', value: 7234.56, change: 67.89, changePercent: 0.95, country: 'FR' },
+  // Crypto Indices
+  { name: 'Bitcoin', symbol: 'BTC-USD', value: 43567.89, change: 1234.56, changePercent: 2.92, country: 'CRYPTO' },
+  { name: 'Ethereum', symbol: 'ETH-USD', value: 2678.45, change: -89.34, changePercent: -3.23, country: 'CRYPTO' },
+  { name: 'BNB', symbol: 'BNB-USD', value: 345.67, change: 12.34, changePercent: 3.70, country: 'CRYPTO' },
+  { name: 'Solana', symbol: 'SOL-USD', value: 98.76, change: -4.56, changePercent: -4.42, country: 'CRYPTO' },
+  { name: 'Cardano', symbol: 'ADA-USD', value: 0.456, change: 0.023, changePercent: 5.31, country: 'CRYPTO' },
 ];
 
 const MOCK_NEWS: NewsItem[] = [

@@ -11,6 +11,7 @@ interface AuthContextType {
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, fullName: string) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -55,6 +56,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setLoading(false);
   };
 
+  const signInWithGoogle = async () => {
+    setLoading(true);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    const mockUser = {
+      id: '1',
+      email: 'user@gmail.com',
+      full_name: 'Google User'
+    };
+    
+    setUser(mockUser);
+    localStorage.setItem('demo_user', JSON.stringify(mockUser));
+    setLoading(false);
+  };
+
   const signOut = async () => {
     setUser(null);
     localStorage.removeItem('demo_user');
@@ -65,6 +81,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     loading,
     signIn,
     signUp,
+    signInWithGoogle,
     signOut,
   };
 

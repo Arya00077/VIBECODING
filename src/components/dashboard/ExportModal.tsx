@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Download, FileText, Image, Table } from 'lucide-react';
+import { Download, FileText, Image, Table, Globe, Sheets } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { GlassCard } from '../ui/GlassCard';
@@ -78,6 +78,46 @@ export const ExportModal = ({ onClose, portfolioData }: ExportModalProps) => {
     toast.success('Excel file exported successfully!');
   };
 
+  const exportToGoogleSheets = () => {
+    const csvContent = [
+      ['Symbol', 'Name', 'Quantity', 'Purchase Price', 'Current Price', 'Total Value', 'Gain/Loss'],
+      ...portfolioData.stocks.map((stock: any) => [
+        stock.symbol,
+        stock.name,
+        stock.quantity,
+        stock.purchase_price,
+        stock.current_price,
+        (stock.current_price * stock.quantity).toFixed(2),
+        ((stock.current_price - stock.purchase_price) * stock.quantity).toFixed(2)
+      ])
+    ];
+    
+    const encodedData = encodeURIComponent(csvContent.map(row => row.join(',')).join('\n'));
+    const googleSheetsUrl = `https://docs.google.com/spreadsheets/create?usp=sharing&data=${encodedData}`;
+    window.open(googleSheetsUrl, '_blank');
+    toast.success('Opening Google Sheets...');
+  };
+
+  const exportToJSON = () => {
+    const jsonData = {
+      exportDate: new Date().toISOString(),
+      portfolio: portfolioData,
+      metadata: {
+        totalStocks: portfolioData.stocks.length,
+        exportVersion: '1.0'
+      }
+    };
+    
+    const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: 'application/json' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'portfolio-data.json';
+    a.click();
+    window.URL.revokeObjectURL(url);
+    toast.success('JSON file exported successfully!');
+  };
+
   const exportToImage = async () => {
     setIsExporting(true);
     try {
@@ -118,6 +158,22 @@ export const ExportModal = ({ onClose, portfolioData }: ExportModalProps) => {
       icon: Table,
       action: exportToExcel,
       color: 'bg-green-500/20 text-green-600 dark:text-green-400'
+    },
+    {
+      id: 'sheets',
+      title: 'Export to Google Sheets',
+      description: 'Open directly in Google Sheets',
+      icon: Sheets,
+      action: exportToGoogleSheets,
+      color: 'bg-blue-500/20 text-blue-600 dark:text-blue-400'
+    },
+    {
+      id: 'json',
+      title: 'Export as JSON',
+      description: 'Raw data in JSON format',
+      icon: Globe,
+      action: exportToJSON,
+      color: 'bg-purple-500/20 text-purple-600 dark:text-purple-400'
     },
     {
       id: 'image',

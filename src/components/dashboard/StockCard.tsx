@@ -1,10 +1,12 @@
 import { motion } from 'framer-motion';
-import { TrendingUp, TrendingDown, DollarSign } from 'lucide-react';
+import { TrendingUp, TrendingDown, DollarSign, X } from 'lucide-react';
 import { Stock } from '../../types';
 import { GlassCard } from '../ui/GlassCard';
+import { GlassButton } from '../ui/GlassButton';
 
 interface StockCardProps {
   stock: Stock;
+  onRemove?: () => void;
   marketData?: {
     current_price: number;
     change: number;
@@ -12,7 +14,7 @@ interface StockCardProps {
   };
 }
 
-export const StockCard = ({ stock, marketData }: StockCardProps) => {
+export const StockCard = ({ stock, marketData, onRemove }: StockCardProps) => {
   const currentPrice = marketData?.current_price || stock.current_price;
   const change = marketData?.change || 0;
   const changePercent = marketData?.changePercent || 0;
@@ -24,6 +26,20 @@ export const StockCard = ({ stock, marketData }: StockCardProps) => {
 
   return (
     <GlassCard hover className="p-6">
+      {onRemove && (
+        <div className="flex justify-end mb-2">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onRemove();
+            }}
+            className="p-1 rounded-full hover:bg-red-500/20 text-red-500 transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+      
       <div className="flex justify-between items-start mb-4">
         <div>
           <h3 className="text-xl font-bold text-gray-900 dark:text-white">{stock.symbol}</h3>

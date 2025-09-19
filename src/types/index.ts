@@ -72,5 +72,5 @@ export interface MarketIndex {
   value: number;
   change: number;
   changePercent: number;
-  country: 'IN' | 'US';
+  country: 'IN' | 'US' | 'UK' | 'DE' | 'JP' | 'HK' | 'FR' | 'CRYPTO';
 }
