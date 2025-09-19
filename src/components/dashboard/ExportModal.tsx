@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Download, FileText, Image, Table, Globe, Sheets } from 'lucide-react';
+import { Download, FileText, Image, Table, Globe, Sheet as Sheets } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { GlassCard } from '../ui/GlassCard';
