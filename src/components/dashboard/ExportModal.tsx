@@ -396,6 +396,8 @@ export const ExportModal = ({ onClose, portfolioData }: ExportModalProps) => {
                       transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
                     />
                   📋 Copy
+                )
+                }
                 </GlassButton>
               </motion.div>
             ))}
