@@ -156,6 +156,29 @@ export const Header = ({ portfolioData }: HeaderProps) => {
               )}
             </button>
           </div>
+          
+          {/* Current Time Display */}
+          <div className="hidden md:flex items-center space-x-2 ml-6">
+            <div className="flex items-center space-x-2 px-3 py-2 bg-white/10 dark:bg-black/20 rounded-lg backdrop-blur-sm">
+              <Clock className="w-4 h-4 text-white/80" />
+              <div className="text-white/90">
+                <div className="text-xs font-medium">
+                  {new Date().toLocaleTimeString('en-IN', { 
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    timeZone: 'Asia/Kolkata'
+                  })} IST
+                </div>
+                <div className="text-xs text-white/60">
+                  {new Date().toLocaleDateString('en-IN', { 
+                    day: '2-digit', 
+                    month: 'short',
+                    timeZone: 'Asia/Kolkata'
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Mobile Menu */}

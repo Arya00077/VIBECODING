@@ -8,7 +8,7 @@ import { GlassCard } from '../ui/GlassCard';
 export const MarketOverview = () => {
   const [indices, setIndices] = useState<MarketIndex[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedRegion, setSelectedRegion] = useState<'IN' | 'US' | 'GLOBAL' | 'CRYPTO' | 'ALL'>('ALL');
+  const [selectedRegion, setSelectedRegion] = useState<'IN' | 'US' | 'GLOBAL' | 'CRYPTO' | 'ALL'>('IN');
 
   useEffect(() => {
     const fetchIndices = async () => {

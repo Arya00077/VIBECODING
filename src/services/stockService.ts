@@ -45,46 +45,91 @@ const MOCK_INDICES: MarketIndex[] = [
 const MOCK_NEWS: NewsItem[] = [
   {
     id: '1',
-    title: 'NIFTY 50 Hits New All-Time High Amid Strong FII Inflows',
-    summary: 'Indian benchmark index NIFTY 50 reached a new record high of 21,500 points driven by strong foreign institutional investor inflows and positive Q3 earnings.',
+    title: 'NIFTY 50 Surges to Record High as FII Inflows Touch ₹15,000 Crores',
+    summary: 'Indian benchmark index NIFTY 50 reached a new record high of 21,847 points driven by massive foreign institutional investor inflows and stellar Q3 earnings from IT and banking sectors.',
     source: 'Economic Times',
-    timestamp: '2 hours ago',
+    timestamp: '1 hour ago',
     url: '#',
     category: 'market'
   },
   {
     id: '2',
-    title: 'RBI Maintains Repo Rate at 6.5%, Focus on Inflation Control',
-    summary: 'Reserve Bank of India keeps key policy rates unchanged, citing inflation concerns and global economic uncertainties.',
+    title: 'RBI Holds Repo Rate at 6.5%, Signals Cautious Stance on Inflation',
+    summary: 'Reserve Bank of India maintains accommodative policy stance while keeping a close watch on food inflation and global commodity prices. GDP growth forecast revised to 6.8%.',
     source: 'Business Standard',
-    timestamp: '4 hours ago',
+    timestamp: '3 hours ago',
     url: '#',
     category: 'policy'
   },
   {
     id: '3',
-    title: 'IT Stocks Rally on Strong Q3 Results, TCS Leads Gains',
-    summary: 'Information Technology sector outperforms broader market with TCS, Infosys posting better-than-expected quarterly results.',
+    title: 'IT Sector Rallies 4.2% as TCS, Infosys Beat Q3 Estimates',
+    summary: 'Technology stocks surge on robust quarterly earnings with TCS reporting 12% YoY growth and Infosys raising FY24 guidance. Deal wins in BFSI sector drive optimism.',
     source: 'Moneycontrol',
-    timestamp: '6 hours ago',
+    timestamp: '4 hours ago',
     url: '#',
     category: 'stock'
   },
   {
     id: '4',
-    title: 'Banking Sector Under Pressure Amid NPA Concerns',
-    summary: 'Bank Nifty declines 0.5% as investors worry about rising non-performing assets in the banking sector.',
+    title: 'Bank Nifty Recovers 2.1% on Improved Asset Quality Metrics',
+    summary: 'Banking stocks rebound strongly after HDFC Bank and ICICI Bank report significant improvement in asset quality with NPA ratios hitting multi-year lows.',
     source: 'Mint',
+    timestamp: '5 hours ago',
+    url: '#',
+    category: 'stock'
+  },
+  {
+    id: '5',
+    title: 'Energy Stocks Gain 3.5% as Crude Oil Prices Stabilize Above $85',
+    summary: 'Oil & Gas sector outperforms with ONGC, Reliance Industries leading gains as Brent crude stabilizes. Refining margins show improvement.',
+    source: 'CNBC TV18',
+    timestamp: '6 hours ago',
+    url: '#',
+    category: 'stock'
+  },
+  {
+    id: '6',
+    title: 'Adani Group Stocks Surge 8% on Debt Reduction Announcement',
+    summary: 'Adani portfolio companies rally after the group announces accelerated debt reduction plan and strategic asset monetization worth ₹25,000 crores.',
+    source: 'Reuters',
+    timestamp: '7 hours ago',
+    url: '#',
+    category: 'stock'
+  },
+  {
+    id: '7',
+    title: 'Mutual Fund Inflows Hit Record ₹1.2 Lakh Crores in Q3',
+    summary: 'Equity mutual funds witness unprecedented inflows as retail investors show strong appetite for Indian equities amid market volatility.',
+    source: 'Financial Express',
     timestamp: '8 hours ago',
     url: '#',
     category: 'market'
   },
   {
-    id: '5',
-    title: 'Crude Oil Prices Impact Energy Stocks, ONGC Down 2%',
-    summary: 'Rising crude oil prices put pressure on energy sector stocks with ONGC and other oil companies declining.',
-    source: 'CNBC TV18',
+    id: '8',
+    title: 'Auto Sector Gains 2.8% on Strong December Sales Data',
+    summary: 'Automobile stocks rally as companies report robust festive season sales with Maruti Suzuki, Tata Motors leading the charge.',
+    source: 'ET Auto',
+    timestamp: '9 hours ago',
+    url: '#',
+    category: 'stock'
+  },
+  {
+    id: '9',
+    title: 'Foreign Portfolio Investment Turns Positive After 3 Months',
+    summary: 'FPIs invest ₹8,500 crores in Indian equities in January, marking a reversal from three consecutive months of outflows.',
+    source: 'Bloomberg Quint',
     timestamp: '10 hours ago',
+    url: '#',
+    category: 'market'
+  },
+  {
+    id: '10',
+    title: 'Pharma Stocks Rally 5.2% on US FDA Approval for Generic Drugs',
+    summary: 'Pharmaceutical sector surges as Dr. Reddy\'s and Sun Pharma receive multiple ANDA approvals from US FDA, boosting export prospects.',
+    source: 'Pharma Letter',
+    timestamp: '11 hours ago',
     url: '#',
     category: 'stock'
   }

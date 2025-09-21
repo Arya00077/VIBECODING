@@ -10,6 +10,7 @@ import { StockChart } from './StockChart';
 import { SmartAnalyzer } from './SmartAnalyzer';
 import { NewsSection } from './NewsSection';
 import { MarketOverview } from './MarketOverview';
+import { NewsTicker } from '../ui/NewsTicker';
 import { GlassCard } from '../ui/GlassCard';
 import { GlassButton } from '../ui/GlassButton';
 import { AddStockModal } from './AddStockModal';
@@ -162,6 +163,11 @@ export const Dashboard = () => {
         initial="hidden"
         animate="visible"
       >
+        {/* Live News Ticker */}
+        <motion.div variants={itemVariants} className="mb-8">
+          <NewsTicker />
+        </motion.div>
+
         {/* Market Overview */}
         <motion.div variants={itemVariants} className="mb-8">
           <MarketOverview />
