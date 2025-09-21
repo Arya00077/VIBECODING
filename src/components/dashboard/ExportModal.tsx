@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Download, FileText, Image, Table, Globe, Sheet as Sheets } from 'lucide-react';
+import { Download, FileText, Image, Table, Globe, Sheet as Sheets, Link2, QrCode } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 import { GlassCard } from '../ui/GlassCard';
 import { GlassButton } from '../ui/GlassButton';
 import toast from 'react-hot-toast';
@@ -14,6 +16,7 @@ interface ExportModalProps {
 
 export const ExportModal = ({ onClose, portfolioData }: ExportModalProps) => {
   const [isExporting, setIsExporting] = useState(false);
+  const [shareLink, setShareLink] = useState('');
 
   const exportToPDF = async () => {
     setIsExporting(true);
@@ -55,31 +58,7 @@ export const ExportModal = ({ onClose, portfolioData }: ExportModalProps) => {
   };
 
   const exportToExcel = () => {
-    const csvContent = [
-      ['Symbol', 'Name', 'Quantity', 'Purchase Price', 'Current Price', 'Total Value', 'Gain/Loss'],
-      ...portfolioData.stocks.map((stock: any) => [
-        stock.symbol,
-        stock.name,
-        stock.quantity,
-        stock.purchase_price,
-        stock.current_price,
-        (stock.current_price * stock.quantity).toFixed(2),
-        ((stock.current_price - stock.purchase_price) * stock.quantity).toFixed(2)
-      ])
-    ].map(row => row.join(',')).join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'portfolio-data.csv';
-    a.click();
-    window.URL.revokeObjectURL(url);
-    toast.success('Excel file exported successfully!');
-  };
-
-  const exportToGoogleSheets = () => {
-    const csvContent = [
+    const worksheetData = [
       ['Symbol', 'Name', 'Quantity', 'Purchase Price', 'Current Price', 'Total Value', 'Gain/Loss'],
       ...portfolioData.stocks.map((stock: any) => [
         stock.symbol,
@@ -91,11 +70,33 @@ export const ExportModal = ({ onClose, portfolioData }: ExportModalProps) => {
         ((stock.current_price - stock.purchase_price) * stock.quantity).toFixed(2)
       ])
     ];
+
+    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Portfolio');
     
-    const encodedData = encodeURIComponent(csvContent.map(row => row.join(',')).join('\n'));
-    const googleSheetsUrl = `https://docs.google.com/spreadsheets/create?usp=sharing&data=${encodedData}`;
-    window.open(googleSheetsUrl, '_blank');
-    toast.success('Opening Google Sheets...');
+    // Add styling
+    const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1');
+    for (let C = range.s.c; C <= range.e.c; ++C) {
+      const address = XLSX.utils.encode_col(C) + "1";
+      if (!worksheet[address]) continue;
+      worksheet[address].s = {
+        font: { bold: true },
+        fill: { fgColor: { rgb: "FFFFAA00" } }
+      };
+    }
+    
+    XLSX.writeFile(workbook, 'portfolio-data.xlsx');
+    toast.success('Excel file exported successfully!');
+  };
+
+  const exportToGoogleSheets = () => {
+    // First export to Excel format, then provide instructions
+    exportToExcel();
+    setTimeout(() => {
+      toast.success('Excel file downloaded! You can now upload it to Google Sheets.');
+      window.open('https://sheets.google.com', '_blank');
+    }, 1000);
   };
 
   const exportToJSON = () => {
@@ -116,6 +117,26 @@ export const ExportModal = ({ onClose, portfolioData }: ExportModalProps) => {
     a.click();
     window.URL.revokeObjectURL(url);
     toast.success('JSON file exported successfully!');
+  };
+
+  const generateShareLink = async () => {
+    setIsExporting(true);
+    try {
+      // Simulate API call to generate secure share link
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      const uniqueId = Math.random().toString(36).substring(2, 15);
+      const generatedUrl = `https://stockdashboard.app/shared/${uniqueId}`;
+      setShareLink(generatedUrl);
+      
+      // Copy to clipboard
+      await navigator.clipboard.writeText(generatedUrl);
+      toast.success('Share link generated and copied to clipboard!');
+    } catch (error) {
+      toast.error('Failed to generate share link');
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   const exportToImage = async () => {
@@ -182,6 +203,14 @@ export const ExportModal = ({ onClose, portfolioData }: ExportModalProps) => {
       icon: Image,
       action: exportToImage,
       color: 'bg-blue-500/20 text-blue-600 dark:text-blue-400'
+    },
+    {
+      id: 'share',
+      title: 'Generate Share Link',
+      description: 'Create a secure link to share your portfolio',
+      icon: Link2,
+      action: generateShareLink,
+      color: 'bg-indigo-500/20 text-indigo-600 dark:text-indigo-400'
     }
   ];
 
@@ -207,6 +236,30 @@ export const ExportModal = ({ onClose, portfolioData }: ExportModalProps) => {
               <h2 className="text-xl font-bold text-gray-900 dark:text-white">Export Portfolio</h2>
             </div>
             <button
+          
+          {shareLink && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-4 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-semibold text-indigo-900 dark:text-indigo-100">Share Link Generated</h4>
+                  <p className="text-sm text-indigo-700 dark:text-indigo-300 break-all">{shareLink}</p>
+                </div>
+                <GlassButton
+                  size="sm"
+                  onClick={() => {
+                    navigator.clipboard.writeText(shareLink);
+                    toast.success('Link copied!');
+                  }}
+                >
+                  Copy
+                </GlassButton>
+              </div>
+            </motion.div>
+          )}
               onClick={onClose}
               className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
             >

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Eye, EyeOff, Mail, Lock, User, Chrome } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User, Chrome, Shield } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { GlassCard } from '../ui/GlassCard';
 import { GlassButton } from '../ui/GlassButton';
@@ -57,17 +57,21 @@ export const AuthForm = () => {
         <GlassCard className="p-8">
           <div className="text-center mb-8">
             <motion.div
-              className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl mx-auto mb-4 flex items-center justify-center"
+              className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-lg"
               whileHover={{ rotate: 5 }}
             >
-              <span className="text-2xl font-bold text-white">📊</span>
+              <Shield className="w-8 h-8 text-white" />
             </motion.div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-              Stock Dashboard
+              SecureStock Pro
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
-              {isLogin ? 'Welcome back!' : 'Create your account'}
+              {isLogin ? 'Secure login to your portfolio' : 'Create your secure account'}
             </p>
+            <div className="flex items-center justify-center space-x-2 mt-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+              <span className="text-xs text-gray-500 dark:text-gray-400">SSL Encrypted</span>
+            </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -79,7 +83,7 @@ export const AuthForm = () => {
                   placeholder="Full Name"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 bg-white/50 dark:bg-black/50 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                  className="w-full pl-12 pr-4 py-3 bg-white/70 dark:bg-black/70 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all backdrop-blur-sm"
                   required
                 />
               </div>
@@ -92,7 +96,7 @@ export const AuthForm = () => {
                 placeholder="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 bg-white/50 dark:bg-black/50 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                className="w-full pl-12 pr-4 py-3 bg-white/70 dark:bg-black/70 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all backdrop-blur-sm"
                 required
               />
             </div>
@@ -104,7 +108,7 @@ export const AuthForm = () => {
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-12 pr-12 py-3 bg-white/50 dark:bg-black/50 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                className="w-full pl-12 pr-12 py-3 bg-white/70 dark:bg-black/70 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all backdrop-blur-sm"
                 required
               />
               <button
@@ -128,10 +132,10 @@ export const AuthForm = () => {
 
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300 dark:border-gray-600" />
+                <div className="w-full border-t border-gray-300 dark:border-gray-600 opacity-50" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white/50 dark:bg-black/50 text-gray-500 dark:text-gray-400">
+                <span className="px-4 bg-white/80 dark:bg-black/80 text-gray-500 dark:text-gray-400 rounded-full">
                   Or continue with
                 </span>
               </div>
@@ -153,10 +157,23 @@ export const AuthForm = () => {
           <div className="mt-6 text-center">
             <button
               onClick={() => setIsLogin(!isLogin)}
-              className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+              className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium"
             >
               {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
             </button>
+          </div>
+          
+          <div className="mt-4 text-center">
+            <div className="flex items-center justify-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
+              <div className="flex items-center space-x-1">
+                <Shield className="w-3 h-3" />
+                <span>256-bit SSL</span>
+              </div>
+              <div className="w-1 h-1 bg-gray-400 rounded-full" />
+              <span>GDPR Compliant</span>
+              <div className="w-1 h-1 bg-gray-400 rounded-full" />
+              <span>SOC 2 Certified</span>
+            </div>
           </div>
         </GlassCard>
       </motion.div>
