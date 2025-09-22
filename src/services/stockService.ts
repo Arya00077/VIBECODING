@@ -1,22 +1,6 @@
 import { Stock, MarketData, AnalysisResult } from '../types';
 import { NewsItem, MarketIndex } from '../types';
 
-// Cache for API responses
-const cache = new Map<string, { data: any; timestamp: number }>();
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
-
-const getCachedData = (key: string) => {
-  const cached = cache.get(key);
-  if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
-    return cached.data;
-  }
-  return null;
-};
-
-const setCachedData = (key: string, data: any) => {
-  cache.set(key, { data, timestamp: Date.now() });
-};
-
 // Mock stock data for demonstration
 const MOCK_STOCKS: MarketData[] = [
   // Indian Stocks
@@ -153,47 +137,24 @@ const MOCK_NEWS: NewsItem[] = [
 
 class StockService {
   async getMarketData(symbols: string[]): Promise<MarketData[]> {
-    const cacheKey = `market-data-${symbols.join(',')}`;
-    const cached = getCachedData(cacheKey);
-    if (cached) return cached;
-    
     await new Promise(resolve => setTimeout(resolve, 500));
     
-    const result = MOCK_STOCKS.filter(stock => 
+    return MOCK_STOCKS.filter(stock => 
       symbols.length === 0 || symbols.includes(stock.symbol)
     );
-    
-    setCachedData(cacheKey, result);
-    return result;
   }
 
   async getMarketIndices(): Promise<MarketIndex[]> {
-    const cacheKey = 'market-indices';
-    const cached = getCachedData(cacheKey);
-    if (cached) return cached;
-    
     await new Promise(resolve => setTimeout(resolve, 300));
-    
-    setCachedData(cacheKey, MOCK_INDICES);
     return MOCK_INDICES;
   }
 
   async getNews(): Promise<NewsItem[]> {
-    const cacheKey = 'news';
-    const cached = getCachedData(cacheKey);
-    if (cached) return cached;
-    
     await new Promise(resolve => setTimeout(resolve, 400));
-    
-    setCachedData(cacheKey, MOCK_NEWS);
     return MOCK_NEWS;
   }
 
   async getHistoricalData(symbol: string, period: string = '1M'): Promise<number[]> {
-    const cacheKey = `historical-${symbol}-${period}`;
-    const cached = getCachedData(cacheKey);
-    if (cached) return cached;
-    
     const basePrice = MOCK_STOCKS.find(s => s.symbol === symbol)?.price || 100;
     const days = period === '1M' ? 30 : period === '3M' ? 90 : period === '1Y' ? 365 : 7;
     
@@ -206,25 +167,10 @@ class StockService {
       data.push(Number(currentPrice.toFixed(2)));
     }
     
-    setCachedData(cacheKey, data);
     return data;
   }
 
   async analyzePortfolio(stocks: Stock[]): Promise<AnalysisResult> {
-    if (stocks.length === 0) {
-      return {
-        risk_level: 'low',
-        diversification_score: 0,
-        performance_score: 0,
-        recommendations: ['Add stocks to your portfolio to get personalized recommendations'],
-        insights: ['Your portfolio is empty. Start by adding some stocks to track.'],
-      };
-    }
-    
-    const cacheKey = `analysis-${stocks.map(s => s.id).join(',')}`;
-    const cached = getCachedData(cacheKey);
-    if (cached) return cached;
-    
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     const totalValue = stocks.reduce((sum, stock) => sum + (stock.current_price * stock.quantity), 0);
@@ -243,16 +189,13 @@ class StockService {
     const recommendations = this.generateRecommendations(stocks, diversificationScore, totalReturn);
     const insights = this.generateInsights(stocks, totalReturn, riskLevel);
 
-    const result = {
+    return {
       risk_level: riskLevel,
       diversification_score: Math.round(diversificationScore),
       performance_score: Math.round(performanceScore),
       recommendations,
       insights,
     };
-    
-    setCachedData(cacheKey, result);
-    return result;
   }
 
   private getSector(symbol: string): string {
