@@ -471,7 +471,7 @@ export const ImportModal = ({ onClose, onImport }: ImportModalProps) => {
                 <strong className="text-orange-600 dark:text-orange-400">Data Requirements:</strong>
                 <ul className="mt-1 space-y-1 ml-4">
                   <li>• Stock symbol is mandatory</li>
-                  <li>• Purchase price must be {'>'}  0</li>
+                  <li>• Purchase price must be {'>'} 0</li>
                   <li>• Quantity defaults to 1 if missing</li>
                 </ul>
               </div>
