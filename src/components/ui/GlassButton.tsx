@@ -1,16 +1,18 @@
 import { motion } from 'framer-motion';
-import { ReactNode, ButtonHTMLAttributes } from 'react';
+import { ReactNode, ButtonHTMLAttributes, memo } from 'react';
 
 interface GlassButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
   variant?: 'primary' | 'secondary' | 'success' | 'danger';
   size?: 'sm' | 'md' | 'lg';
+  loading?: boolean;
 }
 
-export const GlassButton = ({ 
+export const GlassButton = memo(({ 
   children, 
   variant = 'primary', 
   size = 'md',
+  loading = false,
   className = '', 
   ...props 
 }: GlassButtonProps) => {
@@ -32,16 +34,27 @@ export const GlassButton = ({
       className={`
         backdrop-blur-lg border rounded-xl
         font-medium transition-all duration-200
-        disabled:opacity-50 disabled:cursor-not-allowed
+        disabled:opacity-50 disabled:cursor-not-allowed relative
         ${variants[variant]}
         ${sizes[size]}
         ${className}
       `}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
+      disabled={loading || props.disabled}
       {...props}
     >
-      {children}
+      {loading ? (
+        <div className="flex items-center justify-center space-x-2">
+          <motion.div
+            className="w-4 h-4 border-2 border-current border-t-transparent rounded-full"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+          />
+          <span>Loading...</span>
+        </div>
+      ) : (
+        children
+      )}
     </motion.button>
   );
-};

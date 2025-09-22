@@ -328,13 +328,7 @@ export const ExportModal = ({ onClose, portfolioData }: ExportModalProps) => {
                       animate={{ rotate: 360 }}
                       transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
                       className="w-5 h-5 border-2 border-current border-t-transparent rounded-full"
-                    />
-                  )}
-                </GlassButton>
-              </motion.div>
-            ))}
-          </div>
-
+          
           {shareLink && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -364,6 +358,11 @@ export const ExportModal = ({ onClose, portfolioData }: ExportModalProps) => {
               </div>
             </motion.div>
           )}
+        </GlassCard>
+      </motion.div>
+    </motion.div>
+  );
+};
 
           <div className="mt-8 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
             <div className="flex items-center justify-center space-x-6 text-xs text-gray-500 dark:text-gray-400">

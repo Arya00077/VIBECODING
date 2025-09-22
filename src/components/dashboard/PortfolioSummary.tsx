@@ -2,44 +2,55 @@ import { motion } from 'framer-motion';
 import { TrendingUp, DollarSign, PieChart, Target } from 'lucide-react';
 import { Stock } from '../../types';
 import { GlassCard } from '../ui/GlassCard';
+import { memo, useMemo } from 'react';
 
 interface PortfolioSummaryProps {
   stocks: Stock[];
 }
 
-export const PortfolioSummary = ({ stocks }: PortfolioSummaryProps) => {
-  const totalValue = stocks.reduce((sum, stock) => sum + (stock.current_price * stock.quantity), 0);
-  const totalInvested = stocks.reduce((sum, stock) => sum + (stock.purchase_price * stock.quantity), 0);
-  const totalGainLoss = totalValue - totalInvested;
-  const totalGainLossPercent = totalInvested > 0 ? (totalGainLoss / totalInvested) * 100 : 0;
-  const isPositive = totalGainLoss >= 0;
+export const PortfolioSummary = memo(({ stocks }: PortfolioSummaryProps) => {
+  const portfolioMetrics = useMemo(() => {
+    const totalValue = stocks.reduce((sum, stock) => sum + (stock.current_price * stock.quantity), 0);
+    const totalInvested = stocks.reduce((sum, stock) => sum + (stock.purchase_price * stock.quantity), 0);
+    const totalGainLoss = totalValue - totalInvested;
+    const totalGainLossPercent = totalInvested > 0 ? (totalGainLoss / totalInvested) * 100 : 0;
+    const isPositive = totalGainLoss >= 0;
 
-  const stats = [
+    return {
+      totalValue,
+      totalInvested,
+      totalGainLoss,
+      totalGainLossPercent,
+      isPositive
+    };
+  }, [stocks]);
+
+  const stats = useMemo(() => [
     {
       label: 'Total Portfolio Value',
-      value: `₹${totalValue.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      value: `₹${portfolioMetrics.totalValue.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       icon: DollarSign,
       color: 'blue'
     },
     {
       label: 'Total Invested',
-      value: `₹${totalInvested.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      value: `₹${portfolioMetrics.totalInvested.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       icon: Target,
       color: 'purple'
     },
     {
       label: 'Total Gain/Loss',
-      value: `${isPositive ? '+' : ''}₹${Math.abs(totalGainLoss).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      value: `${portfolioMetrics.isPositive ? '+' : ''}₹${Math.abs(portfolioMetrics.totalGainLoss).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       icon: TrendingUp,
-      color: isPositive ? 'green' : 'red'
+      color: portfolioMetrics.isPositive ? 'green' : 'red'
     },
     {
       label: 'Return Percentage',
-      value: `${isPositive ? '+' : ''}${totalGainLossPercent.toFixed(2)}%`,
+      value: `${portfolioMetrics.isPositive ? '+' : ''}${portfolioMetrics.totalGainLossPercent.toFixed(2)}%`,
       icon: PieChart,
-      color: isPositive ? 'green' : 'red'
+      color: portfolioMetrics.isPositive ? 'green' : 'red'
     },
-  ];
+  ], [portfolioMetrics]);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -77,4 +88,3 @@ export const PortfolioSummary = ({ stocks }: PortfolioSummaryProps) => {
       ))}
     </div>
   );
-};

@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { TrendingUp, TrendingDown, DollarSign, X } from 'lucide-react';
 import { Stock } from '../../types';
 import { GlassCard } from '../ui/GlassCard';
-import { GlassButton } from '../ui/GlassButton';
+import { memo } from 'react';
 
 interface StockCardProps {
   stock: Stock;
@@ -14,7 +14,7 @@ interface StockCardProps {
   };
 }
 
-export const StockCard = ({ stock, marketData, onRemove }: StockCardProps) => {
+export const StockCard = memo(({ stock, marketData, onRemove }: StockCardProps) => {
   const currentPrice = marketData?.current_price || stock.current_price;
   const change = marketData?.change || 0;
   const changePercent = marketData?.changePercent || 0;
@@ -101,4 +101,3 @@ export const StockCard = ({ stock, marketData, onRemove }: StockCardProps) => {
       </motion.div>
     </GlassCard>
   );
-};
