@@ -71,13 +71,13 @@ export const SmartAnalyzer = ({ stocks }: SmartAnalyzerProps) => {
           >
             <Brain className="w-7 h-7 text-purple-300" />
           </motion.div>
-          </div>
           <div>
             <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
               AI Portfolio Analyzer
             </h2>
             <p className="text-white/70 text-lg">Advanced insights powered by machine learning</p>
           </div>
+        </div>
         </div>
         <GlassButton
           onClick={runAnalysis}
