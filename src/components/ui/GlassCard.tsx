@@ -26,3 +26,5 @@ export const GlassCard = memo(({ children, className = '', hover = false, onClic
       {children}
     </motion.div>
   );
+}
+)
