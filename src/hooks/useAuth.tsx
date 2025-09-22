@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useCallback } from 'react';
 import toast from 'react-hot-toast';
 
 interface User {
@@ -28,7 +28,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   });
   const [loading, setLoading] = useState(false);
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = useCallback(async (email: string, password: string) => {
     setLoading(true);
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1500));
@@ -44,9 +44,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.setItem('demo_user', JSON.stringify(mockUser));
     toast.success(`Welcome back, ${mockUser.full_name}!`);
     setLoading(false);
-  };
+  }, []);
 
-  const signUp = async (email: string, password: string, fullName: string) => {
+  const signUp = useCallback(async (email: string, password: string, fullName: string) => {
     setLoading(true);
     await new Promise(resolve => setTimeout(resolve, 1500));
     
@@ -61,9 +61,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.setItem('demo_user', JSON.stringify(mockUser));
     toast.success(`Welcome to Stock Dashboard, ${fullName}!`);
     setLoading(false);
-  };
+  }, []);
 
-  const signInWithGoogle = async () => {
+  const signInWithGoogle = useCallback(async () => {
     setLoading(true);
     await new Promise(resolve => setTimeout(resolve, 2000));
     
@@ -79,14 +79,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.setItem('demo_user', JSON.stringify(mockUser));
     toast.success(`Welcome, ${mockUser.full_name}!`);
     setLoading(false);
-  };
+  }, []);
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     const userName = user?.full_name || 'User';
     setUser(null);
     localStorage.removeItem('demo_user');
     toast.success(`Goodbye, ${userName}! Your session has been securely ended.`);
-  };
+  }, [user?.full_name]);
 
   const value = {
     user,
