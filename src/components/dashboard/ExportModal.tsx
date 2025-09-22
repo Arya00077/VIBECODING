@@ -176,36 +176,128 @@ export const ExportModal = ({ onClose, portfolioData }: ExportModalProps) => {
         totalInvested: portfolioData.totalInvested,
         totalGainLoss: portfolioData.totalGainLoss,
         totalGainLossPercent: portfolioData.totalGainLossPercent,
+      },
+      stocks: portfolioData.stocks
+    };
+
+    const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: 'application/json' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `portfolio-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+    
+    toast.success('JSON file exported successfully!');
+  };
+
+  const generateShareLink = () => {
+    const shareData = {
+      summary: {
+        totalValue: portfolioData.totalValue,
+        totalInvested: portfolioData.totalInvested,
+        totalGainLoss: portfolioData.totalGainLoss,
+        totalGainLossPercent: portfolioData.totalGainLossPercent
+      },
+      stocks: portfolioData.stocks.map((stock: any) => ({
+        symbol: stock.symbol,
+        name: stock.name,
+        quantity: stock.quantity,
+        current_price: stock.current_price,
+        purchase_price: stock.purchase_price
+      }))
+    };
+    
+    const encodedData = btoa(JSON.stringify(shareData));
+    const link = `${window.location.origin}/shared-portfolio?data=${encodedData}`;
+    setShareLink(link);
+    
+    navigator.clipboard.writeText(link);
+    toast.success('Share link copied to clipboard!');
+  };
+
+  const exportOptions = [
+    {
+      id: 'pdf',
+      title: 'PDF Report',
+      description: 'Professional formatted report',
+      icon: FileText,
+      action: exportToPDF,
+      color: 'text-red-600 dark:text-red-400'
+    },
+    {
+      id: 'excel',
+      title: 'Excel Spreadsheet',
+      description: 'Detailed data with calculations',
+      icon: Table,
+      action: exportToExcel,
+      color: 'text-green-600 dark:text-green-400'
+    },
+    {
+      id: 'csv',
+      title: 'CSV File',
+      description: 'Universal data format',
+      icon: Download,
+      action: exportToCSV,
+      color: 'text-blue-600 dark:text-blue-400'
+    },
+    {
+      id: 'sheets',
+      title: 'Google Sheets',
+      description: 'Import to Google Sheets',
+      icon: Globe,
+      action: exportToGoogleSheets,
+      color: 'text-yellow-600 dark:text-yellow-400'
+    },
+    {
+      id: 'json',
+      title: 'JSON Data',
+      description: 'Raw data for developers',
+      icon: Download,
+      action: exportToJSON,
+      color: 'text-purple-600 dark:text-purple-400'
+    },
+    {
+      id: 'share',
+      title: 'Share Link',
+      description: 'Generate shareable link',
+      icon: Share2,
+      action: generateShareLink,
+      color: 'text-indigo-600 dark:text-indigo-400'
+    }
+  ];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-4xl max-h-[90vh] overflow-y-auto"
+      >
+        <GlassCard className="p-8">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                📊 Export Portfolio
+              </h2>
+              <p className="text-gray-600 dark:text-gray-300">
+                Choose your preferred format to export your portfolio data
+              </p>
+            </div>
             <button
-          
-          {shareLink && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mt-4 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg"
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="font-semibold text-indigo-900 dark:text-indigo-100">Share Link Generated</h4>
-                  <p className="text-sm text-indigo-700 dark:text-indigo-300 break-all">{shareLink}</p>
-                </div>
-                <GlassButton
-                  size="sm"
-                  onClick={() => {
-                    navigator.clipboard.writeText(shareLink);
-                    toast.success('Link copied!');
-                  }}
-                >
-                  Copy
-                </GlassButton>
-              </div>
-            </motion.div>
-          )}
-                  size="sm"
+              onClick={onClose}
+              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
             >
               ✕
             </button>
-          </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -225,8 +317,32 @@ export const ExportModal = ({ onClose, portfolioData }: ExportModalProps) => {
                   </div>
                   <div className="flex-1">
                     <h3 className="font-semibold text-gray-900 dark:text-white">
-              <div className="flex items-start justify-between">
+                      {option.title}
                     </h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {option.description}
+                    </p>
+                  </div>
+                  {isExporting && (
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                      className="w-5 h-5 border-2 border-current border-t-transparent rounded-full"
+                    />
+                  )}
+                </GlassButton>
+              </motion.div>
+            ))}
+          </div>
+
+          {shareLink && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-6 p-6 bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20 rounded-2xl border border-indigo-200 dark:border-indigo-700"
+            >
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
                   <h4 className="font-bold text-indigo-900 dark:text-indigo-100 text-lg mb-2">🔗 Secure Share Link Generated</h4>
                   <p className="text-sm text-indigo-700 dark:text-indigo-300 break-all bg-white/50 dark:bg-black/20 p-3 rounded-lg font-mono">
                     {shareLink}
@@ -234,22 +350,20 @@ export const ExportModal = ({ onClose, portfolioData }: ExportModalProps) => {
                   <p className="text-xs text-indigo-600 dark:text-indigo-400 mt-2">
                     🔒 Link expires in 24 hours • Read-only access • No personal data shared
                   </p>
-                    </p>
-                  </div>
-                  {isExporting && (
-                  className="ml-4 bg-indigo-500/20 border-indigo-500/30 text-indigo-600 dark:text-indigo-400"
-                    <motion.div
-                      className="w-5 h-5 border-2 border-current border-t-transparent rounded-full"
+                </div>
+                <GlassButton
+                  size="sm"
+                  onClick={() => {
+                    navigator.clipboard.writeText(shareLink);
                     toast.success('Share link copied to clipboard!');
-                      transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                    />
+                  }}
+                  className="ml-4 bg-indigo-500/20 border-indigo-500/30 text-indigo-600 dark:text-indigo-400"
+                >
                   📋 Copy
-                )
-                }
                 </GlassButton>
-              </motion.div>
-            ))}
-          </div>
+              </div>
+            </motion.div>
+          )}
 
           <div className="mt-8 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
             <div className="flex items-center justify-center space-x-6 text-xs text-gray-500 dark:text-gray-400">
@@ -268,7 +382,7 @@ export const ExportModal = ({ onClose, portfolioData }: ExportModalProps) => {
             </div>
           </div>
         </GlassCard>
-              className="mt-6 p-6 bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20 rounded-2xl border border-indigo-200 dark:border-indigo-700"
+      </motion.div>
     </motion.div>
   );
 };
