@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Brain, TrendingUp, Shield, Target, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
 import { Stock, AnalysisResult } from '../../types';
@@ -15,8 +15,6 @@ export const SmartAnalyzer = ({ stocks }: SmartAnalyzerProps) => {
   const [loading, setLoading] = useState(false);
 
   const runAnalysis = async () => {
-    if (stocks.length === 0) return;
-    
     setLoading(true);
     try {
       const result = await stockService.analyzePortfolio(stocks);
@@ -31,65 +29,26 @@ export const SmartAnalyzer = ({ stocks }: SmartAnalyzerProps) => {
   useEffect(() => {
     if (stocks.length > 0) {
       runAnalysis();
-    } else {
-      setAnalysis(null);
     }
   }, [stocks]);
 
-  const getRiskIcon = useMemo(() => (riskLevel: string) => {
+  const getRiskIcon = (riskLevel: string) => {
     switch (riskLevel) {
       case 'low': return <CheckCircle className="w-5 h-5 text-green-400" />;
       case 'medium': return <AlertTriangle className="w-5 h-5 text-yellow-400" />;
       case 'high': return <XCircle className="w-5 h-5 text-red-400" />;
       default: return <Shield className="w-5 h-5" />;
     }
-  }, []);
+  };
 
-  const getRiskColor = useMemo(() => (riskLevel: string) => {
+  const getRiskColor = (riskLevel: string) => {
     switch (riskLevel) {
       case 'low': return 'text-green-400';
       case 'medium': return 'text-yellow-400';
       case 'high': return 'text-red-400';
       default: return 'text-white';
     }
-  }, []);
-
-  const getRiskWidth = useMemo(() => (riskLevel: string) => {
-    switch (riskLevel) {
-      case 'low': return '30%';
-      case 'medium': return '60%';
-      case 'high': return '90%';
-      default: return '0%';
-    }
-  }, []);
-
-  if (stocks.length === 0) {
-    return (
-      <div className="space-y-6 relative">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-blue-900/20 to-indigo-900/20 rounded-3xl blur-3xl -z-10" />
-        
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="p-4 rounded-2xl bg-gradient-to-br from-purple-500/30 to-blue-500/30 backdrop-blur-sm border border-purple-400/20">
-              <Brain className="w-7 h-7 text-purple-300" />
-            </div>
-            <div>
-              <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-                AI Portfolio Analyzer
-              </h2>
-              <p className="text-white/70 text-lg">Add stocks to get AI-powered insights</p>
-            </div>
-          </div>
-        </div>
-
-        <GlassCard className="p-12 text-center bg-gradient-to-br from-white/10 to-white/5 border-white/20 backdrop-blur-xl">
-          <Brain className="w-16 h-16 text-purple-400 mx-auto mb-4 opacity-50" />
-          <h3 className="text-xl font-semibold text-white mb-2">No Stocks to Analyze</h3>
-          <p className="text-white/60">Add some stocks to your portfolio to get AI-powered insights and recommendations.</p>
-        </GlassCard>
-      </div>
-    );
-  }
+  };
 
   return (
     <div className="space-y-6 relative">
@@ -118,6 +77,7 @@ export const SmartAnalyzer = ({ stocks }: SmartAnalyzerProps) => {
             </h2>
             <p className="text-white/70 text-lg">Advanced insights powered by machine learning</p>
           </div>
+        </div>
         </div>
         <GlassButton
           onClick={runAnalysis}
@@ -162,7 +122,10 @@ export const SmartAnalyzer = ({ stocks }: SmartAnalyzerProps) => {
                   'bg-red-400'
                 } shadow-lg`}
                 initial={{ width: '0%' }}
-                animate={{ width: getRiskWidth(analysis.risk_level) }}
+                animate={{ 
+                  width: analysis.risk_level === 'low' ? '30%' :
+                         analysis.risk_level === 'medium' ? '60%' : '90%'
+                }}
                 transition={{ delay: 0.5, duration: 0.8 }}
               />
             </div>
@@ -226,25 +189,18 @@ export const SmartAnalyzer = ({ stocks }: SmartAnalyzerProps) => {
               <span>AI Recommendations</span>
             </h3>
             <div className="space-y-3">
-              {analysis.recommendations.length > 0 ? (
-                analysis.recommendations.map((recommendation, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.1 * index }}
-                    className="flex items-start space-x-3 p-4 rounded-xl bg-gradient-to-r from-purple-500/10 to-blue-500/10 border border-purple-400/20"
-                  >
-                    <div className="w-3 h-3 bg-gradient-to-r from-purple-400 to-blue-400 rounded-full mt-2 flex-shrink-0 shadow-lg" />
-                    <p className="text-white/90 font-medium">{recommendation}</p>
-                  </motion.div>
-                ))
-              ) : (
-                <div className="text-center py-8">
-                  <CheckCircle className="w-12 h-12 text-green-400 mx-auto mb-4" />
-                  <p className="text-white/70">Your portfolio looks well-balanced! No immediate recommendations.</p>
-                </div>
-              )}
+              {analysis.recommendations.map((recommendation, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 * index }}
+                  className="flex items-start space-x-3 p-4 rounded-xl bg-gradient-to-r from-purple-500/10 to-blue-500/10 border border-purple-400/20"
+                >
+                  <div className="w-3 h-3 bg-gradient-to-r from-purple-400 to-blue-400 rounded-full mt-2 flex-shrink-0 shadow-lg" />
+                  <p className="text-white/90 font-medium">{recommendation}</p>
+                </motion.div>
+              ))}
             </div>
           </GlassCard>
 
