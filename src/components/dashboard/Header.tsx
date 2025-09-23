@@ -11,8 +11,7 @@ import {
   X,
   Share,
   Download,
-  Calculator as CalcIcon,
-  Clock
+  Calculator as CalcIcon
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useTheme } from '../../hooks/useTheme';
