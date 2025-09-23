@@ -47,17 +47,25 @@ export const AuthForm = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-black">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 relative overflow-hidden">
+      {/* Enhanced Background Elements */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-100/30 via-transparent to-purple-100/20 dark:from-blue-900/20 dark:via-transparent dark:to-purple-900/15"></div>
+      <div className="absolute inset-0 bg-grid-pattern opacity-5 dark:opacity-10"></div>
+      
+      {/* Floating Elements */}
+      <div className="absolute top-20 left-20 w-32 h-32 bg-gradient-to-r from-blue-400/10 to-purple-400/10 rounded-full blur-xl animate-pulse"></div>
+      <div className="absolute bottom-20 right-20 w-40 h-40 bg-gradient-to-r from-indigo-400/10 to-cyan-400/10 rounded-full blur-xl animate-pulse delay-1000"></div>
+      
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
         className="w-full max-w-md"
       >
-        <GlassCard className="p-8">
+        <GlassCard variant="premium" className="p-8">
           <div className="text-center mb-8">
             <motion.div
-              className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-lg"
+              className="w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-2xl shadow-blue-500/30"
               whileHover={{ rotate: 5 }}
             >
               <Shield className="w-8 h-8 text-white" />
@@ -65,12 +73,12 @@ export const AuthForm = () => {
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
               SecureStock Pro
             </h1>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-slate-600 dark:text-slate-400">
               {isLogin ? 'Secure login to your portfolio' : 'Create your secure account'}
             </p>
             <div className="flex items-center justify-center space-x-2 mt-2">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-              <span className="text-xs text-gray-500 dark:text-gray-400">SSL Encrypted</span>
+              <span className="text-xs text-slate-500 dark:text-slate-400">SSL Encrypted</span>
             </div>
           </div>
 

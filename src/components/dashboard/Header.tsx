@@ -44,7 +44,7 @@ export const Header = ({ portfolioData }: HeaderProps) => {
     <motion.header
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="sticky top-0 z-50 backdrop-blur-lg bg-white/10 dark:bg-white/5 border-b border-white/20"
+      className="sticky top-0 z-50 backdrop-blur-2xl bg-gradient-to-r from-white/80 via-white/70 to-white/80 dark:from-slate-800/80 dark:via-slate-900/70 dark:to-slate-800/80 border-b border-white/30 dark:border-slate-700/50 shadow-lg shadow-black/5 dark:shadow-black/20"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">

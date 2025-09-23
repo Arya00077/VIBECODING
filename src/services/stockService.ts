@@ -1,8 +1,59 @@
-import { Stock, MarketData, AnalysisResult } from '../types';
-import { NewsItem, MarketIndex } from '../types';
+import { Stock, MarketData, AnalysisResult, NewsItem, MarketIndex } from '../types';
+
+// Security: Rate limiting and caching
+class RateLimiter {
+  private requests: Map<string, number[]> = new Map();
+  private readonly maxRequests = 100;
+  private readonly windowMs = 60000; // 1 minute
+
+  canMakeRequest(key: string): boolean {
+    const now = Date.now();
+    const requests = this.requests.get(key) || [];
+    
+    // Remove old requests outside the window
+    const validRequests = requests.filter(time => now - time < this.windowMs);
+    
+    if (validRequests.length >= this.maxRequests) {
+      return false;
+    }
+    
+    validRequests.push(now);
+    this.requests.set(key, validRequests);
+    return true;
+  }
+}
+
+// Simple cache implementation
+class Cache {
+  private cache: Map<string, { data: any; timestamp: number; ttl: number }> = new Map();
+
+  get<T>(key: string): T | null {
+    const item = this.cache.get(key);
+    if (!item) return null;
+    
+    if (Date.now() - item.timestamp > item.ttl) {
+      this.cache.delete(key);
+      return null;
+    }
+    
+    return item.data;
+  }
+
+  set<T>(key: string, data: T, ttl: number = 300000): void { // 5 minutes default
+    this.cache.set(key, {
+      data,
+      timestamp: Date.now(),
+      ttl
+    });
+  }
+
+  clear(): void {
+    this.cache.clear();
+  }
+}
 
 // Mock stock data for demonstration
-const MOCK_STOCKS: MarketData[] = [
+const MOCK_STOCKS: Readonly<MarketData[]> = Object.freeze([
   // Indian Stocks
   { symbol: 'RELIANCE', price: 2456.75, change: 32.15, changePercent: 1.33, volume: 2345678, marketCap: 16600000000000 },
   { symbol: 'TCS', price: 3678.90, change: -45.20, changePercent: -1.21, volume: 1234567, marketCap: 13400000000000 },
@@ -15,9 +66,9 @@ const MOCK_STOCKS: MarketData[] = [
   { symbol: 'GOOGL', price: 142.89, change: -1.45, changePercent: -1.00, volume: 23456789, marketCap: 1780000000000 },
   { symbol: 'MSFT', price: 378.45, change: 5.23, changePercent: 1.40, volume: 34567890, marketCap: 2810000000000 },
   { symbol: 'TSLA', price: 248.76, change: -8.34, changePercent: -3.24, volume: 67890123, marketCap: 789000000000 },
-];
+]);
 
-const MOCK_INDICES: MarketIndex[] = [
+const MOCK_INDICES: Readonly<MarketIndex[]> = Object.freeze([
   // Indian Indices
   { name: 'NIFTY 50', symbol: 'NIFTY', value: 21456.78, change: 145.32, changePercent: 0.68, country: 'IN' },
   { name: 'BANK NIFTY', symbol: 'BANKNIFTY', value: 45678.90, change: -234.56, changePercent: -0.51, country: 'IN' },
@@ -40,9 +91,9 @@ const MOCK_INDICES: MarketIndex[] = [
   { name: 'BNB', symbol: 'BNB-USD', value: 345.67, change: 12.34, changePercent: 3.70, country: 'CRYPTO' },
   { name: 'Solana', symbol: 'SOL-USD', value: 98.76, change: -4.56, changePercent: -4.42, country: 'CRYPTO' },
   { name: 'Cardano', symbol: 'ADA-USD', value: 0.456, change: 0.023, changePercent: 5.31, country: 'CRYPTO' },
-];
+]);
 
-const MOCK_NEWS: NewsItem[] = [
+const MOCK_NEWS: Readonly<NewsItem[]> = Object.freeze([
   {
     id: '1',
     title: 'NIFTY 50 Surges to Record High as FII Inflows Touch ₹15,000 Crores',
@@ -133,30 +184,76 @@ const MOCK_NEWS: NewsItem[] = [
     url: '#',
     category: 'stock'
   }
-];
+]);
 
 class StockService {
+  private rateLimiter = new RateLimiter();
+  private cache = new Cache();
+
   async getMarketData(symbols: string[]): Promise<MarketData[]> {
-    await new Promise(resolve => setTimeout(resolve, 500));
+    const cacheKey = `market_data_${symbols.join(',')}`;
+    const cached = this.cache.get<MarketData[]>(cacheKey);
+    if (cached) return cached;
+
+    if (!this.rateLimiter.canMakeRequest('market_data')) {
+      throw new Error('Rate limit exceeded');
+    }
     
-    return MOCK_STOCKS.filter(stock => 
+    await new Promise(resolve => setTimeout(resolve, 300)); // Reduced delay
+    
+    const result = MOCK_STOCKS.filter(stock => 
       symbols.length === 0 || symbols.includes(stock.symbol)
     );
+    
+    this.cache.set(cacheKey, result, 60000); // Cache for 1 minute
+    return result;
   }
 
   async getMarketIndices(): Promise<MarketIndex[]> {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    return MOCK_INDICES;
+    const cached = this.cache.get<MarketIndex[]>('market_indices');
+    if (cached) return cached;
+
+    if (!this.rateLimiter.canMakeRequest('market_indices')) {
+      throw new Error('Rate limit exceeded');
+    }
+
+    await new Promise(resolve => setTimeout(resolve, 200)); // Reduced delay
+    
+    this.cache.set('market_indices', [...MOCK_INDICES], 120000); // Cache for 2 minutes
+    return [...MOCK_INDICES];
   }
 
   async getNews(): Promise<NewsItem[]> {
-    await new Promise(resolve => setTimeout(resolve, 400));
-    return MOCK_NEWS;
+    const cached = this.cache.get<NewsItem[]>('news');
+    if (cached) return cached;
+
+    if (!this.rateLimiter.canMakeRequest('news')) {
+      throw new Error('Rate limit exceeded');
+    }
+
+    await new Promise(resolve => setTimeout(resolve, 250)); // Reduced delay
+    
+    this.cache.set('news', [...MOCK_NEWS], 300000); // Cache for 5 minutes
+    return [...MOCK_NEWS];
   }
 
   async getHistoricalData(symbol: string, period: string = '1M'): Promise<number[]> {
+    // Security: Input validation
+    if (typeof symbol !== 'string' || symbol.length > 10) {
+      throw new Error('Invalid symbol');
+    }
+    
+    const validPeriods = ['1D', '1W', '1M', '3M', '6M', '1Y', '2Y'];
+    if (!validPeriods.includes(period)) {
+      throw new Error('Invalid period');
+    }
+
+    const cacheKey = `historical_${symbol}_${period}`;
+    const cached = this.cache.get<number[]>(cacheKey);
+    if (cached) return cached;
+
     const basePrice = MOCK_STOCKS.find(s => s.symbol === symbol)?.price || 100;
-    const days = period === '1M' ? 30 : period === '3M' ? 90 : period === '1Y' ? 365 : 7;
+    const days = this.getPeriodDays(period);
     
     const data: number[] = [];
     let currentPrice = basePrice * 0.9;
@@ -167,11 +264,34 @@ class StockService {
       data.push(Number(currentPrice.toFixed(2)));
     }
     
+    this.cache.set(cacheKey, data, 600000); // Cache for 10 minutes
     return data;
   }
 
+  private getPeriodDays(period: string): number {
+    const periodMap: Record<string, number> = {
+      '1D': 1,
+      '1W': 7,
+      '1M': 30,
+      '3M': 90,
+      '6M': 180,
+      '1Y': 365,
+      '2Y': 730
+    };
+    return periodMap[period] || 30;
+  }
+
   async analyzePortfolio(stocks: Stock[]): Promise<AnalysisResult> {
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    // Security: Input validation
+    if (!Array.isArray(stocks) || stocks.length > 100) {
+      throw new Error('Invalid portfolio data');
+    }
+
+    const cacheKey = `analysis_${JSON.stringify(stocks.map(s => ({ symbol: s.symbol, quantity: s.quantity })))}`;
+    const cached = this.cache.get<AnalysisResult>(cacheKey);
+    if (cached) return cached;
+
+    await new Promise(resolve => setTimeout(resolve, 500)); // Reduced delay
 
     const totalValue = stocks.reduce((sum, stock) => sum + (stock.current_price * stock.quantity), 0);
     const totalInvested = stocks.reduce((sum, stock) => sum + (stock.purchase_price * stock.quantity), 0);
@@ -189,17 +309,20 @@ class StockService {
     const recommendations = this.generateRecommendations(stocks, diversificationScore, totalReturn);
     const insights = this.generateInsights(stocks, totalReturn, riskLevel);
 
-    return {
+    const result = {
       risk_level: riskLevel,
       diversification_score: Math.round(diversificationScore),
       performance_score: Math.round(performanceScore),
       recommendations,
       insights,
     };
+    
+    this.cache.set(cacheKey, result, 180000); // Cache for 3 minutes
+    return result;
   }
 
   private getSector(symbol: string): string {
-    const sectors: Record<string, string> = {
+    const sectors: Readonly<Record<string, string>> = Object.freeze({
       // Indian Stocks
       'RELIANCE': 'Oil & Gas',
       'TCS': 'Information Technology',
@@ -214,7 +337,7 @@ class StockService {
       'TSLA': 'Automotive',
       'AMZN': 'E-commerce',
       'NVDA': 'Semiconductors',
-    };
+    });
     return sectors[symbol] || 'Other';
   }
 
@@ -259,6 +382,11 @@ class StockService {
     }
 
     return insights;
+  }
+
+  // Cleanup method for memory management
+  clearCache(): void {
+    this.cache.clear();
   }
 }
 
