@@ -78,7 +78,6 @@ export const SmartAnalyzer = ({ stocks }: SmartAnalyzerProps) => {
             <p className="text-white/70 text-lg">Advanced insights powered by machine learning</p>
           </div>
         </div>
-        </div>
         <GlassButton
           onClick={runAnalysis}
           disabled={loading || stocks.length === 0}
